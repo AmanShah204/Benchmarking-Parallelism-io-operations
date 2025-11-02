@@ -1,0 +1,48 @@
+# Compiler settings
+CXX = g++
+CC = gcc
+CXXFLAGS = -O3 -std=c++17 -pthread
+CFLAGS = -O3 -std=c11
+AVXFLAGS = -O3 -std=c11 -mavx2
+
+# Source files
+CPP_SRCS = main.cpp hashgen.cpp sort.cpp write.cpp verify.cpp search.cpp
+C_SRCS = blake3.c blake3_dispatch.c blake3_portable.c
+AVX_SRCS = blake3_avx2.c
+
+# Object files
+CPP_OBJS = $(CPP_SRCS:.cpp=.o)
+C_OBJS = $(C_SRCS:.c=.o)
+AVX_OBJS = $(AVX_SRCS:.c=.o)
+
+# Final binary
+TARGET = vaultx
+
+# Default build
+all: $(TARGET)
+
+$(TARGET): $(CPP_OBJS) $(C_OBJS) $(AVX_OBJS)
+        $(CXX) $(CXXFLAGS) -o $@ $^
+
+# Compile C++ sources
+%.o: %.cpp
+        $(CXX) $(CXXFLAGS) -c $< -o $@
+
+# Compile C sources
+blake3.o: blake3.c
+        $(CC) $(CFLAGS) -c $< -o $@
+
+blake3_dispatch.o: blake3_dispatch.c
+        $(CC) $(CFLAGS) -c $< -o $@
+
+blake3_portable.o: blake3_portable.c
+        $(CC) $(CFLAGS) -c $< -o $@
+
+blake3_avx2.o: blake3_avx2.c
+        $(CC) $(AVXFLAGS) -c $< -o $@
+
+# Clean build artifacts
+clean:
+        rm -f *.o vaultx result.x k26-memo.x
+
+    
